@@ -1,2 +1,2 @@
-# LoCobSS-platfrom
-Svelte Application bringing together all LoCobSS's services
+# LoCobSS-platform
+Svelte Application bringing together all of LoCobSS's services
