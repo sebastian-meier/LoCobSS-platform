@@ -56,3 +56,21 @@ nav li:last-child{
 #user-menu, #user-menu ul{
   justify-content: flex-end;
 }
+
+#sidebar {
+  border-right:1px solid rgba(0,0,0,0.3);
+  nav{
+    ul {
+      display:flex;
+      flex-direction: column;
+      li a{
+        width: 100%;
+        border: none;
+        border-bottom:1px solid rgba(0,0,0,0.3);
+      }
+      li:last-child{
+        border:none;
+      }
+    }
+  }
+}

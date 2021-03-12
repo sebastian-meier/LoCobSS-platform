@@ -14,6 +14,9 @@
 <style lang="scss" global>
 	@import 'styles/vars';
 	@import 'styles/global';
+  @import 'styles/form';
   @import 'styles/header';
   @import 'styles/footer';
+  @import 'styles/datatables';
+  @import 'styles/survey';
 </style>

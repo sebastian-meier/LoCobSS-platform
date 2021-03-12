@@ -1,1 +1,16 @@
-Add .github/workflows > see authentication UI
+- Add .github/workflows > see authentication UI
+- user/delete
+- user/deleteConfirm
+- edit
+- table component check for smart table component package
+- Email Verifiction on API
+
+- cache admin questions in store and add a refresh/last refreshed function to list screen > see survey list
+
+- Roles on API
+
+- api pagination
+- separate translation to own endpoint or during insert...
+- search... (freitext (fast), similarity (slow))
+- similarity grouping
+LIMIT / OFFSET

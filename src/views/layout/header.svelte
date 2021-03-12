@@ -1,5 +1,4 @@
 <script>
-  import { location } from 'svelte-spa-router';
   import { loggedIn } from '../../stores/current_user';
   import Menu from '../components/menu.svelte';
 

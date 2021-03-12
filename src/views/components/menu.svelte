@@ -13,7 +13,7 @@
   {#each menu as item}
   {#if !item.protected || (item.protected && cLoggedIn) }
   <li>
-    <a href="{item.url}" class:active="{cLocation === item.url}" use:link>{item.label}</a>
+    <a href="{item.url}" class:active="{(item.url !== '/' && cLocation.indexOf(item.url) === 0) || (item.url === '/' && cLocation === item.url)}" use:link>{item.label}</a>
   </li>
   {/if}
   {/each}

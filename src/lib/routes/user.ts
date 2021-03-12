@@ -1,5 +1,6 @@
 import View from '../../views/pages/user/view.svelte'
 import Edit from '../../views/pages/user/edit.svelte'
+import Verify from '../../views/pages/user/verify.svelte'
 import Delete from '../../views/pages/user/delete.svelte'
 import DeleteConfirm from '../../views/pages/user/deleteConfirm.svelte'
 import Login from '../../views/pages/user/login.svelte'
@@ -16,6 +17,7 @@ export const routes = {
   '/login': Login,
   '/register': Register,
   '/logout': Logout,
+  '/verify': Verify,
   '/404': NotFound,
   '*': NotFound,
 }

@@ -7,6 +7,7 @@ import NotFound from '../../views/pages/404/404.svelte'
 export const routes = {
   '/': Home,
   '/survey': Survey,
+  '/survey/*': Survey,
   '/admin': Admin,
   '/admin/*': Admin,
   '/user': User,

@@ -9,6 +9,8 @@
 </script>
 
 <div class="input-field">
+  <label for={id}>{label}</label>
+  <span class="error-text">{errorMessage}</span>
   <input
     bind:value
     on:input={() => (error = false)}
@@ -17,6 +19,4 @@
     {id}
     class:invalid={error}
     on:blur />
-  <label for={id}>{label}</label>
-  <span class="error-text">{errorMessage}</span>
 </div>
