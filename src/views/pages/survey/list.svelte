@@ -33,7 +33,7 @@
 {#await $cache}
   LOADING
 {:then data} 
-<Pagination results={listCount} max={maxPage} bind:current={$page} />
+<Pagination results={listCount} max={maxPage} bind:current={$page} range={3} />
 <ul class="question-list">
   {#each data.results as question}
     <li on:click={() => push('/survey/details/' + question.id)}>
@@ -52,7 +52,7 @@
     </li>
   {/each}
 </ul>
-<Pagination results={listCount} max={maxPage} bind:current={$page} />
+<Pagination results={listCount} max={maxPage} bind:current={$page} range={3} />
 {:catch err}
 {JSON.stringify(err)}
 {/await}

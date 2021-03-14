@@ -19,4 +19,5 @@
   @import 'styles/footer';
   @import 'styles/datatables';
   @import 'styles/survey';
+  @import 'styles/pagination';
 </style>

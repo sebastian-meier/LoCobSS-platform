@@ -35,7 +35,6 @@ declare global {
     results: {
       id: number; 
       question: string; 
-      description: string; 
       participant_synonym: string; 
       created: string;
       has_reply: boolean;
