@@ -23,6 +23,24 @@ declare global {
       }
     }
   };
+  interface publicQuestion {
+    id: number; 
+    question_de: string;
+    description_de: string;
+    participantSynonym: string; 
+    created: string;
+    tsne_x: number;
+    tsne_y: number;
+    has_reply: boolean;
+    taxonomies: {
+      id: number;
+      name: string;
+    }[];
+    replies: {
+      id: number;
+      name: string;
+    }[];
+  };
   interface publicQuestionResult {
     maxPage: number;
     count: number;
@@ -32,16 +50,6 @@ declare global {
     hasTaxonomy: boolean;
     hasDate: boolean;
     hasAnswer: boolean;
-    results: {
-      id: number; 
-      question: string; 
-      participant_synonym: string; 
-      created: string;
-      has_reply: boolean;
-      taxonomies: {
-        id: number;
-        name: string;
-      }[];
-    }[];
+    results: publicQuestion[];
   };
 }

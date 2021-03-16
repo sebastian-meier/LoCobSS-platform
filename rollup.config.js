@@ -100,6 +100,10 @@ export default {
     }),
 	],
 	watch: {
-		clearScreen: false
+		clearScreen: false,
+		exclude: [
+			'node_modules/**',
+			'public/assets/**'
+		]
 	}
 };

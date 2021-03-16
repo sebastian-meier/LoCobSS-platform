@@ -7,9 +7,7 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public",
-    "validate": "svelte-check",
-    "network": "ts-node tools/network.ts",
-    "simulation": "ts-node tools/simulation.ts"
+    "validate": "svelte-check"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^16.0.0",
@@ -39,8 +37,10 @@
     "typescript": "^3.9.3"
   },
   "dependencies": {
+    "d3-scale": "^3.2.3",
     "firebase": "^8.2.5",
     "moment": "^2.29.1",
+    "svelte-canvas": "^0.6.1",
     "svelte-simple-datatables": "^0.1.25",
     "svelte-spa-router": "^3.1.0",
     "validate.js": "^0.13.1"

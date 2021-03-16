@@ -1,8 +1,7 @@
 <script lang="typescript">
   import {search, hasReply, taxonomies, dates, cache, page} from '../../../stores/public_search';
-  import {push} from 'svelte-spa-router';
-  import moment from 'moment';
   import Pagination from '../../components/Pagination.svelte';
+  import QuestionList from '../../components/QuestionList.svelte';
 
   const toggleTaxonomy = (id: number): void => {
     let tTaxonomies = $taxonomies;
@@ -34,24 +33,7 @@
   LOADING
 {:then data} 
 <Pagination results={listCount} max={maxPage} bind:current={$page} range={3} />
-<ul class="question-list">
-  {#each data.results as question}
-    <li on:click={() => push('/survey/details/' + question.id)}>
-      {#if question.taxonomies.length > 0}
-      <ul>
-        {#each question.taxonomies as taxonomy}
-          <li>{taxonomy.name}</li>
-        {/each}
-      </ul>
-      {/if}
-      <p>{question.question}</p>
-      <div class="meta" class:answered={question.has_reply}>
-        <span class="participant"><span class="icon"></span>{question.participant_synonym}</span>
-        <span class="date">{moment(question.created).format('DD.MM.YYYY')}</span>
-      </div>
-    </li>
-  {/each}
-</ul>
+<QuestionList data={data.results} />
 <Pagination results={listCount} max={maxPage} bind:current={$page} range={3} />
 {:catch err}
 {JSON.stringify(err)}
