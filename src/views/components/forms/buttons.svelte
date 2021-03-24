@@ -1,4 +1,6 @@
 <script>
+  import { _ } from 'svelte-i18n';
+
   export let cancelText = 'Cancel'
   export let cancelButton = true
   export let submitText = 'Submit'
@@ -20,7 +22,7 @@
   {/if}
   {#if isLoading}
     <div class="preloader">
-      Loading...
+      {$_('loading')}
     </div>
   {:else}
     <button type="submit" {id} class="btn">{submitText} </button>

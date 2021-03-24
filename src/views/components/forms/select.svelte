@@ -1,9 +1,11 @@
 <script>
+  import { _ } from "svelte-i18n";
+
   export let id = 'selectElement'
   export let label = 'Select'
   export let value = ''
   export let error = false
-  export let errorMessage = 'Please select an option'
+  export let errorMessage = $_('please_select')
   export let helpText = ''
   export let options = []
   export let defaultOption = {}

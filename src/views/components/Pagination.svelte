@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { _ } from "svelte-i18n";
+
   export let results:number;
   export let max:number;
   export let current:number;
@@ -6,7 +8,7 @@
 </script>
 
 <div class="pagination">
-  <span>Results: {results}</span>
+  <span>{$_('results')}: {results}</span>
   <ul>
     {#if current - range > 0}
     <li class:active={current==0} on:click={() => { current=0; }}>1</li>

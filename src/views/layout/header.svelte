@@ -1,21 +1,23 @@
 <script>
   import { loggedIn } from '../../stores/current_user';
   import Menu from '../components/menu.svelte';
+  import { _ } from 'svelte-i18n';
+  import { capitalize } from '../../lib/utils';
 
   const menu = [
-    { url: '/',       label: 'Home',            protected: false },
-    { url: '/survey', label: 'Survey',          protected: false },
-    { url: '/admin',  label: 'Administration',  protected: true }
+    { url: '/',       label: capitalize($_('home')),            protected: false },
+    { url: '/survey', label: $_('survey'),          protected: false },
+    { url: '/admin',  label: $_('administration'),  protected: true }
   ];
 
   const userMenu = {
     "default": [
-      { url: '/user/login', label: 'Login', protected: false },
-      { url: '/user/register', label: 'Register', protected: false }
+      { url: '/user/login', label: capitalize($_('login')), protected: false },
+      { url: '/user/register', label: capitalize($_('register')), protected: false }
     ],
     "loggedIn": [
-      { url: '/user/edit', label: 'Edit profile', protected: true },
-      { url: '/user/logout', label: 'Logout', protected: true }
+      { url: '/user/edit', label: capitalize($_('edit_profile')), protected: true },
+      { url: '/user/logout', label: capitalize($_('logout')), protected: true }
     ]
   };
 

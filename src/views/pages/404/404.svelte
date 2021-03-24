@@ -1,14 +1,12 @@
-<style>
-  .not-found {
-    margin: 3rem;
-  }
-</style>
+<script lang="ts">
+  import { _ } from 'svelte-i18n';
+  import {link} from 'svelte-spa-router';
+</script>
 
 <section class="not-found">
-  <h1 class="title">Page not found!</h1>
-  <h3 class="subtitle">I've searched everywhere but it wasn't there. I'm as puzzled as you are!</h3>
-  <h5>
-    Return to the
-    <a href="/">homepage</a>
-  </h5>
+  <h1 class="title">{$_('page_not_found')}</h1>
+  <p>
+    {$_('return_to')}
+    <a href="/" use:link>{$_('home')}</a>
+  </p>
 </section>
