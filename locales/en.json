@@ -1,0 +1,23 @@
+{
+    "loading": "Loading...",
+    "password": "Password",
+    "please_select": "Please select an option",
+    "no_robots": "To protect the site, we need to make sure you are a real person.<br />We are sorry, but robots are not allowed to participate:",
+    "pre_login":"You are not logged in! Please ",
+    "login":"login",
+    "not_valid":"Your email is not yet validated!",
+    "send_verification":"Send verification again",
+    "results":"Results",
+    "project_by": "A project by",
+    "by_bmbf": "Funded by BMBF",
+    "home": "home",
+    "survey": "Survey",
+    "administration": "Administration",
+    "register": "register",
+    "logout": "logout",
+    "edit_profile": "Edit profile",
+    "return_to":"Return to ",
+    "page_not_found": "Page not found!",
+    "welcome":"Welcome",
+    "delete_profile": "Delete profile"
+}

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  const siteKey = __global.env.RECAPTCHA_v2;
+  import { _ } from 'svelte-i18n';
 
+  const siteKey = __global.env.RECAPTCHA_v2;
   export let response: string = null;
 
   const verifyUser = (e) => {
@@ -23,6 +24,6 @@
 </svelte:head>
 
 <div class="g-recaptcha-container">
-  <p>To protect the site, we need to make sure you are a real person.<br />We are sorry, but robots are not allowed to participate:</p>
+  <p>{@html $_('no_robots')}</p>
   <div class="g-recaptcha" data-sitekey="{siteKey}" data-callback="verifyUser" id="recaptcha-container"></div>
 </div>

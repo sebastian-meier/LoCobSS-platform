@@ -1,0 +1,23 @@
+{
+    "loading": "Lädt...",
+    "password": "Passwort",
+    "please_select": "Bitte Auswahl treffen",
+    "no_robots": "Um diese Seite abzusichern, müssen wir sicherstellen, dass du eine echte Person bist.<br />Es tut uns leid, aber Roboter dürfen nicht teilnehmen:",
+    "pre_login":"Du bist nicht eingeloggt! Bitte ",
+    "login":"einloggen",
+    "not_valid":"Deine Email ist noch nicht verifiziert!",
+    "send_verification":"Bestätigungs-Email nochmal verschicken",
+    "results":"Ergebnisse",
+    "project_by": "Ein Projekt von",
+    "by_bmbf": "Gefördert vom BMBF",
+    "home": "Startseite",
+    "survey": "Umfrage",
+    "administration": "Administration",
+    "register": "registrieren",
+    "logout": "ausloggen",
+    "edit_profile": "Profil bearbeiten",
+    "return_to":"Zurück zur ",
+    "page_not_found": "Seite nicht verfügbar!",
+    "welcome":"Willkommen",
+    "delete_profile": "Account löschen"
+}

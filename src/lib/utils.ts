@@ -29,3 +29,8 @@ export const hasNumbersAndLetters = (str: string): boolean => {
   var regex = /(?:[A-Za-z].*?\d|\d.*?[A-Za-z])/;
   return !!str.match(regex);
 }
+
+export const capitalize = (s: string): string => {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+

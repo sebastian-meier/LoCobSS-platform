@@ -1,6 +1,7 @@
 <script lang="ts">
   import {loggedIn, validated, roles, hasRoles} from '../../stores/current_user';
   import {link} from 'svelte-spa-router';
+  import { _ } from 'svelte-i18n';
 
   export let allowInvalid = false;
   export let allowRoles = ['admin'];
@@ -26,11 +27,11 @@
 {#if !$validated || !$loggedIn || !rolesValid}
 <div class="message warning">
   {#if !$loggedIn}
-  <p>You are not logged in! Please <a href="/user/login" use:link>login</a>.</p>
+  <p>{$_('pre_login')}<a href="/user/login" use:link>{$_('login')}</a>.</p>
   {:else if !rolesValid}
   <p>Your account does not have the correct privileges for this page.</p>
   {:else if !$validated}
-  <p>Your email is not yet validated! <a href="/user/verify" use:link>Send verification again</a>.</p>
+  <p>{$_('not_valid')} <a href="/user/verify" use:link>{$_('send_verification')}</a>.</p>
   {/if}
 </div>
 {/if}

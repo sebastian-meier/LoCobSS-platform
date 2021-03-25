@@ -1,7 +1,9 @@
 <script>
+  import { _ } from "svelte-i18n";
+
   export let inputName = 'password'
   export let id = 'password'
-  export let label = 'Password'
+  export let label = $_('password')
   export let value = ''
   export let error = false
   export let errorMessage = ''
