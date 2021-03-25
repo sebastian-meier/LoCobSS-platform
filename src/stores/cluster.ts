@@ -29,7 +29,7 @@ export const cache: Readable<publicQuestion> = derived(
             return response.json();
           });
 
-        set(response[0]);
+        set(response.result);
       }
     })();
   }
@@ -62,7 +62,7 @@ export const questions: Readable<publicQuestion[]> = derived(
             return response.json();
           });
 
-        set([...response.results.filter((r) => r.id !== $cache.id), ...[$cache]]);
+        set([...response.filter((r) => r.id !== $cache.id), ...[$cache]]);
       } else {
         set([]);
       }

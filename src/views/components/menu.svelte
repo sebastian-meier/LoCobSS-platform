@@ -3,7 +3,11 @@
   import { loggedIn, hasRoles, roles } from '../../stores/current_user';
   
   export let menu: { url: string, label: string, protected: boolean, role?: string[]}[] = [];
-  $: allowedMenu = menu.filter((item) => {
+  let i = 0;
+  $: allowedMenu = menu.filter(async (item, index) => {
+    if (index === 0) {
+      i += 1;
+    }
     if (!item.protected) {
       return true;
     } else if ($loggedIn){

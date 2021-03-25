@@ -26,13 +26,13 @@ export const currentUser = {
 };
 
 export const loggedIn: Readable<boolean> = derived(
-  [userInfo, roles],
-  ([$userInfo, $roles]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0)
+  [userInfo],
+  ([$userInfo]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0)
 );
 
 export const validated: Readable<boolean> = derived(
-  [userInfo, roles],
-  ([$userInfo, $roles]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0 && 'emailVerified' in $userInfo && $userInfo.emailVerified)
+  [userInfo],
+  ([$userInfo]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0 && 'emailVerified' in $userInfo && $userInfo.emailVerified)
 );
 
 export const hasRoles: Readable<boolean> = derived(
