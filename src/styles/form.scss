@@ -20,6 +20,9 @@ form {
     &[type="checkbox"]{
       width:auto;
     }
+    &.invalid{
+      border-color: rgb(170, 36, 12);
+    }
   }
 
   select {

@@ -4,82 +4,335 @@ import TextArea from '../../components/forms/textarea.svelte';
 import TextInput from '../../components/forms/text_input.svelte';
 import Select from '../../components/forms/select.svelte';
 import Button from '../../components/forms/buttons.svelte';
-import Checkbox from '../../components/forms/checkbox.svelte';
+import RadioGroup from '../../components/forms/radio_group.svelte';
 import Captcha from '../../components/captcha.svelte';
+import { Auth } from '../../../config/firebase'
+import {emailValidation, hasNumbersAndLetters} from '../../../lib/utils';
+import {postcodes, load, reset, question, description, name, mail, age, gender, postcode, register} from '../../../stores/ask';
+import PasswordInput from '../../components/forms/password_input.svelte';
+import {loggedIn, validated} from '../../../stores/current_user';
 
-const state = 'ask';
+load();
 
-const submitQuestion = () => {
-  console.log(window.grecaptcha.getResponse());
+let state = 'ask';
+let password = '';
+let disableAction = false;
+let message = null;
+let messageType = 'info';
+let captchaResponse;
+
+$: {
+  if ($loggedIn) {
+    $register = 'registered';
+  }
+}
+
+const errors = {
+  "question": { error: false, message: '' },
+  "mail": { error: false, message: '' },
+  "password": { error: false, message: '' },
+  "postcode": { error: false, message: '' }
 };
 
-let question = '';
-let questionError = false;
-let questionMessage = '';
+const resetError = (keys?: string[]): void => {
+  if (!keys || keys.length === 0) {
+    keys = Object.keys(errors);
+  }
+  keys.forEach((k) => {
+    errors[k].error = false;
+    errors[k].message = '';
+  });
+};
 
-let name = '';
-let nameError = false;
-let nameMessage = '';
+const setError = (key: string, message: string): void => {
+  errors[key] = {
+    error: true,
+    message
+  };
+};
 
-let mail = '';
-let mailError = false;
-let mailMessage = '';
+const processErrors = (code: number, stats: null | {
+    postcode: number,
+    state: string,
+    regiostar: number
+  }) => {
+  switch (code) {
+    case 2:
+      // No valid question
+      messageType = 'error';
+      message = 'Please provide a valid question.';
+      errors.question.error = true;
+      window.grecaptcha.reset();
+      disableAction = false;
+      break;
+    case 4:
+      // Email already registered
+      messageType = 'error';
+      message = 'This email adress is already in use.';
+      setError('mail', '');
+      setError('password', '');
+      disableAction = false;
+      state = 'ask';
+      break;
+    case 5:
+      // Email not validated
+      messageType = 'error';
+      message = 'This email is not yet validated. Please validate before submitting another question.';
+      disableAction = false;
+      state = 'ask';
+      break;
+    case 3:
+      // Oh no something went wrong
+      messageType = 'error';
+      message = 'We are really sorry, but something went wrong. Please try again in a minute.';
+      disableAction = false;
+      state = 'ask';
+      break;
+    case 1:
+      // No valid captcha
+      messageType = 'error';
+      message = 'Please fill out the robot test at the end of the form. This is not your fault. Sometimes when the internet is too slow, the robot test becomes invalid before we can check it.';
+      disableAction = false;
+      state = 'ask';
+      break;
+  }
+}
 
-let gender = '';
-let age = '';
-let postcode = '';
-let description = '';
-let register = false;
+const submitQuestion = async () => {
+  disableAction = true;
+  message = '';
+  state = 'processing'
+  // validation
+  let valid = true;
+  let token = null;
 
-let disableAction = false;
+  // 3. check if grecaptcha was fullfilled
+  if (!captchaResponse) {
+    valid = false;
+    messageType = 'error';
+    message = 'Please answer the robot test at the end of the form, before submitting';
+  }
+
+  // 1. is there a question
+  if (!$question || $question.length < 10) {
+    valid = false;
+    setError('question', 'Please enter a question, at least 10 characters long.');
+  } else {
+    resetError(['question']);
+  }
+
+  // 2. if someone would like to register, we need email and password
+  if ($register === 'yes' || $register === 'registered') {
+    if ($register === 'registered' && $validated && $loggedIn) {
+      try {
+        token = await Auth.currentUser.getIdToken()
+          .then((token) => {
+            return token;
+          });
+        $name = await Auth.currentUser.displayName;
+      } catch (err) {
+        console.log(err);
+        valid = false;
+        messageType = 'error';
+        message = 'Something went wrong. Please try again.';
+      }
+    } else if($register === 'registered' && $loggedIn && !$validated) {
+      valid = false;
+      messageType = 'error';
+      message = 'Please validate your email before asking another question.';
+    } else {
+      if (!$mail || $mail.length < 6 || !emailValidation($mail)) {
+        valid = false;
+        setError('mail', 'Please enter a valid email.');
+      } else {
+        resetError(['mail']);
+      }
+      if (!password || password.length < 8 || !hasNumbersAndLetters(password)) {
+        valid = false;
+        setError('password', 'Please enter a valid password (at least 8 characters, numbers and letters).');
+      } else {
+        resetError(['password']);
+      }
+      if (valid && $register === 'registered') {
+        try {
+          token = await Auth.signInWithEmailAndPassword($mail, password)
+            .then((user) => {
+              return Auth.currentUser.getIdToken()
+                .then((token) => {
+                  return token;
+                });
+            });
+        } catch (error) {
+          console.log(error);
+          valid = false;
+          setError('password', '');
+          setError('mail', '');
+          messageType = 'error';
+          message = 'We could not log you in, with the credentials you provided. Please check them.';
+          state = 'ask';
+        }
+      }
+    }
+  } else {
+    resetError(['mail', 'password']);
+  }
+
+  let stats: {
+    postcode: number,
+    state: string,
+    regiostar: number
+  } = null;
+
+  if ($postcode) {
+    let validPostcode = false;
+    // PRIVACY-FIRST MEASUREMENT
+    // Instead of providing the detailed postcode, we only derive
+    // the federal state of the postcode and the region type of
+    // the postcode:
+    // 51: Stadtregionen - Metropolen
+    // 52: Stadtregionen - Regiopolen und Großstädte
+    // 53: Stadtregionen - Umland
+    // 54: Ländliche Regionen -Städte, städtischer Raum
+    // 55: Ländliche Regionen -Kleinstädtischer, dörflicher Raum
+    if ($postcode.length >= 4 && !isNaN(parseInt($postcode))) {
+      $postcodes.forEach((p) => {
+        if (p.postcode === parseInt($postcode)){
+          validPostcode = true;
+          stats = p;
+        }
+      });
+    }
+    if (!validPostcode) {
+      valid = false;
+      setError('postcode', 'The entered postcode is not valid.');
+    } else {
+      resetError(['postcode']);
+    }
+  } else {
+    resetError(['postcode']);
+  }
+
+  if (valid) {
+    resetError();
+
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      // http://localhost:5001/bmbf-research-agenda/europe-west3/api/
+      // https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/
+      const response = await fetch(`http://localhost:5001/bmbf-research-agenda/europe-west3/api/${($loggedIn && $validated) ? '' : 'public/'}question/create`, {
+        method: 'POST',
+        cache: 'no-cache',
+        headers,
+        body: JSON.stringify({
+          grecaptcha: captchaResponse,
+          register: $register.toString(),
+          mail: $mail,
+          password,
+          question: $question,
+          name: ($name) ? $name : 'anonym',
+          description: $description,
+          age: $age,
+          gender: $gender,
+          state: (stats) ? stats.state : null,
+          regiostar: (stats) ? stats.regiostar : null
+        })
+      });
+
+      const jResponse = await response.json();
+
+      if ('errorCode' in jResponse) {
+        processErrors(jResponse.errorCode, stats)
+      } else {
+        if ($register === 'yes') {
+          try {
+            await Auth.signInWithEmailAndPassword($mail, password)
+              .then(async (user) => {
+                await Auth.currentUser.updateProfile({
+                    displayName: $name || 'anonymous'
+                });
+
+                await Auth.currentUser.sendEmailVerification({
+                  url: __global.env.SITE_URL + '/#/user/login'
+                });
+              });
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        reset();
+        messageType = '';
+        message = 'You question was added.';
+        disableAction = false;
+        state = 'asked';
+      }
+    } catch (error) {
+      console.log(error);
+      messageType = 'error';
+      message = 'Something went wrong submitting your question. Please try again in a moment.';
+      window.grecaptcha.reset();
+      disableAction = false;
+    }
+  } else {
+    disableAction = false;
+    state = 'ask';
+  }
+};
 
 </script>
 
 <h1>Ask a question</h1>
+{#if $loggedIn && !$validated && state === 'ask' && message !== 'Please validate your email before asking another question.'}
+<p class="message warning">
+  Please validate your email before asking another question.
+</p>
+{/if}
+{#if message}
+<p 
+  class="message"
+  class:error={messageType==='error'}
+  class:info={messageType==='info'}
+  class:warning={messageType==='warning'}>{@html message}</p>
+{/if}
+{#if state === 'ask'}
 <div id="intro">
-  <p>We are interested in your questions. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.</p>
+  <p>We are interested in your questions. You can ask anything. Please try to be as clear as possible, be polite and constructive. All questions are reviewed before they are published on the platform. Questions that do not align with our code of conduct are removed from the platform.</p>
   <p><i>Fields marked with <strong>*</strong> are required. All other fields are optional.</i></p>
 </div>
-{#if state === 'ask'}
 <form on:submit|preventDefault={submitQuestion}>
   <TextArea
-    bind:value={question}
-    error={questionError}
+    bind:value={$question}
+    error={errors.question.error}
     id="questionArea"
     label="Your Question*"
-    errorMessage={questionMessage} />
+    errorMessage={errors.question.message} />
   <TextArea
-    bind:value={description}
+    bind:value={$description}
     label="Additional notes" />
-  <div class="columns">
-    <div>
-      <TextInput
-        bind:value={name}
-        error={nameError}
-        label="Your name*"
-        errorMessage={nameMessage} />
-    </div>
-    <div class="gap"></div>
-    <div>
-      <TextInput
-        bind:value={mail}
-        error={mailError}
-        label="Your email"
-        errorMessage={mailMessage} />
-    </div>
-  </div>
+  {#if !$loggedIn}
+    <TextInput
+    bind:value={$name}
+    label="Your name*" />
   <h2>Tell us a little bit about yourself:</h2>
   <p>We want this survey to represent all groups in our society, therefore it helps us to know a few things about you. This information is stored separately from your question and cannot be associated with you as a person:</p>
   <div class="columns">
     <div>
       <TextInput
-        bind:value={postcode}
-        label="Postcode" />
+        bind:value={$postcode}
+        label="Postcode"
+        error={errors.postcode.error}
+        errorMessage={errors.postcode.message} />    
     </div>
     <div class="gap"></div>
     <div>
       <Select
-        bind:value={gender}
+        bind:value={$gender}
         label="Your gender"
         helpText=""
         errorMessage=""
@@ -93,7 +346,7 @@ let disableAction = false;
     <div class="gap"></div>
     <div>
       <Select
-        bind:value={age}
+        bind:value={$age}
         label="Your age"
         errorMessage=""
         helpText=""
@@ -113,19 +366,53 @@ let disableAction = false;
   </div>
   <h2>Want to keep in touch?</h2>
   <p>When you register you can get updates on your questions. We will not share your information with third-parties and only inform you about survey-related topics. You can delete your account at any time.</p>
-  <Checkbox
-    bind:checked={register}
-    label="Yes, please create an account for me:" />
-  <Captcha />
-  <Button id="questionSubmit" cancelButton={false} submitText="Submit question" isLoading={disableAction} />
+  <RadioGroup
+    bind:value={$register}
+    id="register"
+    group={[
+      { value: 'no', label: 'No, thanks.'},
+      { value: 'yes', label: 'Yes, please sign me up.'},
+      { value: 'registered', label: 'I am already registered'}
+    ]} />
+  {#if $register === 'yes' || $register === 'registered'}
+  {#if $register === 'yes'}
+  <p>For registration purposes, please provide us with your email and a password for your account. <i>The password should at least be 8 characters long and contain at least one number and one letter.</i></p>
+  {/if}
+  {#if $register === 'registered'}
+  <p>Please provide your email and password, so we can log you in and add your question.</p>
+  {/if}
+  <div class="columns">
+    <div>
+      <TextInput
+      bind:value={$mail}
+      error={errors.mail.error}
+      label="Your email"
+      errorMessage={errors.mail.message} />
+    </div>
+    <div class="gap"></div>
+    <div>
+      <PasswordInput
+      bind:value={password}
+      error={errors.password.error}
+      label="Your password"
+      errorMessage={errors.password.message} />
+    </div>
+  </div>
+  {/if}
+  {/if}
+  <Captcha bind:response={captchaResponse} />
+  <Button id="questionSubmit" cancelButton={false} submitText="Submit question" isLoading={(disableAction||!$postcodes) ? true : false} />
 </form>
-{:else if state === 'related'}
+{:else if state === 'asked'}
 Here a few related articles, rank them...
-{:else if state === 'loading'}
+
+Ask another question
+{:else if state === 'loading' || state === 'processing'}
 <Loader />
 {:else}
 Ooops...
 {/if}
+
 
 <style lang="scss">
   p{

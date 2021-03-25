@@ -83,12 +83,27 @@ h1 {
 .message{
   padding:20px;
   margin:0 0 40px 0;
+  /* info */
+  background-color:rgba(110, 170, 12, 0.1);
+  border: 1px solid rgb(110, 170, 12);
+  color: rgb(110, 170, 12);
+  a {
+    color: rgb(110, 170, 12);
+  }
   &.warning {
     background-color:rgba(170, 97, 12, 0.1);
-    border: 1px solid rgb(170, 97, 12);
+    border-color:rgb(170, 97, 12);
     color: rgb(170, 97, 12);
     a {
       color: rgb(170, 97, 12);
+    }
+  }
+  &.error {
+    background-color:rgba(170, 36, 12, 0.1);
+    border-color: rgb(170, 36, 12);
+    color: rgb(170, 36, 12);
+    a {
+      color: rgb(170, 36, 12);
     }
   }
 }

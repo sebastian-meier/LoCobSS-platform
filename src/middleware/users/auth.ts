@@ -1,8 +1,15 @@
-import { currentUser } from '../../stores/current_user'
-import { Auth } from '../../config/firebase'
+import { currentUser, roles } from '../../stores/current_user';
+import { Auth } from '../../config/firebase';
 
 Auth.onAuthStateChanged(() => {
   if (Auth.currentUser) {
+    Auth.currentUser.getIdTokenResult()
+      .then((idTokenResult) => {
+        if ('role' in idTokenResult.claims) {
+          roles.set([idTokenResult.claims.role]);
+        }
+      });
+
     currentUser.set({
       email: Auth.currentUser.email,
       id: Auth.currentUser.uid,
@@ -12,6 +19,7 @@ Auth.onAuthStateChanged(() => {
       emailVerified: Auth.currentUser.emailVerified
     });
   } else {
-    currentUser.set({ id: 0, emailVerified: false })
+    currentUser.set({ id: 0, emailVerified: false });
+    roles.set([]);
   }
 })

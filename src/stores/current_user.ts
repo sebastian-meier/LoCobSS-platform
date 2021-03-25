@@ -9,6 +9,8 @@ const userInfo: Writable<{
   photoUrl?: string
 }> = writable({});
 
+export const roles: Writable<string[]> = writable([]);
+
 const setUser = user => {
   userInfo.set(user);
 };
@@ -24,11 +26,16 @@ export const currentUser = {
 };
 
 export const loggedIn: Readable<boolean> = derived(
-  userInfo,
-  ($userInfo) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0)
+  [userInfo, roles],
+  ([$userInfo, $roles]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0)
 );
 
 export const validated: Readable<boolean> = derived(
-  userInfo,
-  ($userInfo) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0 && 'emailVerified' in $userInfo && $userInfo.emailVerified)
+  [userInfo, roles],
+  ([$userInfo, $roles]) => ($userInfo && 'id' in $userInfo && $userInfo.id !== 0 && 'emailVerified' in $userInfo && $userInfo.emailVerified)
 );
+
+export const hasRoles: Readable<boolean> = derived(
+  roles,
+  ($roles) => ($roles && $roles.length > 0)
+)

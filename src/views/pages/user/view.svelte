@@ -6,7 +6,7 @@
   $: userName = $currentUser.name || '';
 </script>
 
-<LoginCheck allowInvalid={true}>
+<LoginCheck allowInvalid={true} allowRoles={['all']}>
   <h1>Willkommen {userName}</h1>
   <a href="/user/edit" use:link>Edit profile</a><br />
   <a href="/user/delete" use:link>Delete account</a><br />

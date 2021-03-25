@@ -20,8 +20,10 @@ declare global {
     grecaptcha: {
       getResponse: () => {
         [key: string]: string
-      }
-    }
+      },
+      reset: () => void
+    },
+    verifyUser: (e: string) => void;
   };
   interface publicQuestion {
     id: number; 

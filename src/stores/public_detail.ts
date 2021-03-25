@@ -17,7 +17,7 @@ export const cache: Readable<publicQuestion> = derived(
           `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/question/${$detailId}`
         ).then((response) => response.json());
 
-        set(response[0]);
+        set(response.result);
       }
     })();
   }

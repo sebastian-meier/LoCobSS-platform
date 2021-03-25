@@ -5,7 +5,7 @@
   const menu = [
     { url: '/',       label: 'Home',            protected: false },
     { url: '/survey', label: 'Survey',          protected: false },
-    { url: '/admin',  label: 'Administration',  protected: true }
+    { url: '/admin',  label: 'Administration',  protected: true, role: ['admin'] }
   ];
 
   const userMenu = {
@@ -14,8 +14,8 @@
       { url: '/user/register', label: 'Register', protected: false }
     ],
     "loggedIn": [
-      { url: '/user/edit', label: 'Edit profile', protected: true },
-      { url: '/user/logout', label: 'Logout', protected: true }
+      { url: '/user/edit', label: 'Edit profile', protected: true, role: ['all'] },
+      { url: '/user/logout', label: 'Logout', protected: true, role: ['all'] }
     ]
   };
 
