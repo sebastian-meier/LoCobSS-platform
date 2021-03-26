@@ -17,8 +17,9 @@
         points = data.split('\n').map((d) => {
           const cols = d.split(',');
           return {
-            x: parseFloat(cols[0]),
-            y: parseFloat(cols[1])
+						id: parseInt(cols[0]),
+            x: parseFloat(cols[1]),
+            y: parseFloat(cols[2])
           };
         }).filter((d) => !isNaN(d.x));
       });
@@ -34,7 +35,7 @@
 					.range([height - margin.bottom, margin.top])
 					.nice();
 
-  export let selected: string[] = [];
+  export let selected: number[] = [];
 
 </script>
 
@@ -52,7 +53,7 @@
 			<Point 
 				x={x(p.x)} 
 				y={y(p.y)}
-        fill={(selected.includes(`${p.x}_${p.y}`) ? 'red' : 'black')} 
+        fill={selected.includes(p.id) ? 'red' : 'black'} 
 			/>
 		{/each}
 	</Canvas>

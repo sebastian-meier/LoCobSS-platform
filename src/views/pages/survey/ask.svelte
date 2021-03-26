@@ -1,5 +1,6 @@
 <script lang="ts">
 import Loader from '../../components/Loader.svelte';
+import RelatedRater from '../../components/RelatedRater.svelte';
 import TextArea from '../../components/forms/textarea.svelte';
 import TextInput from '../../components/forms/text_input.svelte';
 import Select from '../../components/forms/select.svelte';
@@ -8,7 +9,22 @@ import RadioGroup from '../../components/forms/radio_group.svelte';
 import Captcha from '../../components/captcha.svelte';
 import { Auth } from '../../../config/firebase'
 import {emailValidation, hasNumbersAndLetters} from '../../../lib/utils';
-import {postcodes, load, reset, question, description, name, mail, age, gender, postcode, register} from '../../../stores/ask';
+import {
+  postcodes,
+  load,
+  reset,
+  question,
+  description,
+  name,
+  mail,
+  age,
+  gender,
+  postcode,
+  register,
+  related,
+  questionAsked,
+  questionAskedId,
+  relatedToken} from '../../../stores/ask';
 import PasswordInput from '../../components/forms/password_input.svelte';
 import {loggedIn, validated} from '../../../stores/current_user';
 
@@ -20,6 +36,14 @@ let disableAction = false;
 let message = null;
 let messageType = 'info';
 let captchaResponse;
+let processingTexts = [
+  '',
+  'Uploading Question',
+  'Checking Question',
+  'Finding connections between your Question and other Questions on the platform'
+];
+let processingId = 0;
+let processingTimeout = null;
 
 $: {
   if ($loggedIn) {
@@ -224,6 +248,19 @@ const submitQuestion = async () => {
     }
 
     try {
+      processingId = 1;
+      if (processingTimeout) {
+        clearTimeout(processingTimeout);
+      }
+      processingTimeout = setTimeout(() => {
+        if (processingId < processingTexts.length - 1) {
+          processingId += 1
+        } else {
+          clearTimeout(processingTimeout);
+          processingTimeout = null;
+        }
+      }, 10000);
+
       // http://localhost:5001/bmbf-research-agenda/europe-west3/api/
       // https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/
       const response = await fetch(`http://localhost:5001/bmbf-research-agenda/europe-west3/api/${($loggedIn && $validated) ? '' : 'public/'}question/create`, {
@@ -266,6 +303,12 @@ const submitQuestion = async () => {
             console.log(error);
           }
         }
+
+        questionAsked.set(jResponse.text);
+        related.set(jResponse.results);
+        relatedToken.set(jResponse.token);
+        questionAskedId.set(jResponse.question);
+
         reset();
         messageType = '';
         message = 'You question was added.';
@@ -404,10 +447,16 @@ const submitQuestion = async () => {
   <Button id="questionSubmit" cancelButton={false} submitText="Submit question" isLoading={(disableAction||!$postcodes) ? true : false} />
 </form>
 {:else if state === 'asked'}
-Here a few related articles, rank them...
-
-Ask another question
+<p>Thanks for submitting your question. Our robot helpers found a couple of questions, they think, are related to yours. You would really help us, if you could rate how strongly you think those questions are related to your Question.</p>
+<p><strong>{$questionAsked}</strong></p>
+<ul>
+{#each $related as q}
+<RelatedRater question={q} token={$relatedToken} source={$questionAskedId} />
+{/each}
+</ul>
+<button on:click={() => { message = ''; state = 'ask'; }}>Ask another question</button>
 {:else if state === 'loading' || state === 'processing'}
+<p>{processingTexts[processingId]}</p>
 <Loader />
 {:else}
 Ooops...

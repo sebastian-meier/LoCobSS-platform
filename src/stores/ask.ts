@@ -1,4 +1,4 @@
-import { writable, Writable, Readable, derived } from 'svelte/store';
+import { writable, Writable } from 'svelte/store';
 
 export const question: Writable<string> = writable(null);
 export const description: Writable<string> = writable(null);
@@ -8,6 +8,11 @@ export const age: Writable<string> = writable(null);
 export const gender: Writable<string> = writable(null);
 export const postcode: Writable<string> = writable(null);
 export const register: Writable<string> = writable('no');
+
+export const questionAsked: Writable<string> = writable('');
+export const questionAskedId: Writable<number> = writable(null);
+export const related: Writable<publicQuestion[]> = writable([]);
+export const relatedToken: Writable<string> = writable('');
 
 export const reset = ():void => {
   [

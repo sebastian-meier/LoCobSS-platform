@@ -1,17 +1,13 @@
-<script>
+<script lang="ts">
   import { _ } from "svelte-i18n";
 
-  export let id = 'selectElement'
-  export let label = 'Select'
-  export let value = ''
-  export let error = false
-  export let errorMessage = $_('please_select')
-  export let helpText = ''
-  export let options = []
-  export let defaultOption = {}
-  $: if (defaultOption.id) {
-    options.unshift(defaultOption)
-  }
+  export let id = 'selectElement';
+  export let label = 'Select';
+  export let value: number | string = '';
+  export let error = false;
+  export let errorMessage = $_('please_select');
+  export let helpText = '';
+  export let options = [];
 </script>
 
 <div class="input-field">

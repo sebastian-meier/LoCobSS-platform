@@ -17,6 +17,7 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "@types/node": "^14.14.20",
+    "@types/uuid": "^8.3.0",
     "autoprefixer": "^10.0.4",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
@@ -45,6 +46,7 @@
     "svelte-i18n": "^3.3.7",
     "svelte-simple-datatables": "^0.1.25",
     "svelte-spa-router": "^3.1.0",
+    "uuid": "^3.4.0",
     "validate.js": "^0.13.1"
   },
   "repository": {

@@ -1,8 +1,26 @@
 <script lang="ts">
-  import {detailId, limit, cache, clusterQuestions, newClusterIds, ignoredQuestions, ignoredIds, relatedQuestions, relatedIds} from '../../../../stores/cluster';
+  import {
+    detailId,
+    limit,
+    cache,
+    clusterQuestions,
+    newClusterIds,
+    ignoredQuestions,
+    ignoredIds,
+    relatedQuestions,
+    relatedIds} from '../../../../stores/cluster';
+  import {taxonomies, load as loadTaxonomies} from '../../../../stores/taxonomies';
   import Scatterplot from '../../../components/vis/canvas/Scatterplot.svelte';
-
+  import Select from '../../../components/forms/select.svelte';
+  import { Auth } from '../../../../config/firebase';
+  import { onMount } from 'svelte';
+  
   export let params: {id?: string} = {};
+
+  onMount(() => {
+    loadTaxonomies();
+  });
+
   $: {
     if ('id' in params && !isNaN(parseInt(params.id))){
       newClusterIds.set([]);
@@ -10,6 +28,9 @@
       $detailId = parseInt(params.id);      
     }
   }
+  $: selectTaxonomies = [{id: -1, name: 'New Taxonomy'}, ...(($taxonomies) ? $taxonomies.map((t) => {
+      return { id: t.id, name: t.name };
+    }) : [])];
 
   const removeFromCluster = (id: number) => {
     if (id === $detailId) {
@@ -26,8 +47,10 @@
 
   let clusterGroup: number[] = [];
   let ignoreGroup: number[] = [];
-  $: selection = $clusterQuestions.map((q) => `${q.tsne_x}_${q.tsne_y}`);
-  $: console.log(selection)
+  $: selection = $clusterQuestions.map((q) => q.id);
+
+  let newTaxonomy = '';
+  let selectedTaxonomy = -1;
 
   const add = (group: number[], ignoreRest: boolean = true) => {
     const tCluster = $newClusterIds;
@@ -52,12 +75,64 @@
     ignoreGroup = [];
     clusterGroup = [];
   };
+
+  let message = null;
+  let messageType = '';
+
+  const applyCluster = async () => {
+    let taxId = null;
+    const token = await Auth.currentUser.getIdToken()
+      .then((token) => {
+        return token;
+      });
+    if (selectedTaxonomy === -1) {
+      if (newTaxonomy.length > 2) {
+        taxId = await fetch(
+          "http://localhost:5001/bmbf-research-agenda/europe-west3/api/taxonomy/create?name=" +
+            encodeURIComponent(newTaxonomy),
+          {
+            headers: { Authorization:  `Bearer ${token}`},
+            method: "GET",
+          }
+        )
+          .then((response) => response.json())
+          .then((response) => response.id);
+      }
+    } else {
+      taxId = selectedTaxonomy;
+    }
+    if (taxId) {
+      await fetch(
+          "http://localhost:5001/bmbf-research-agenda/europe-west3/api/taxonomy/assign?taxonomies=" +
+            encodeURIComponent(taxId) + "&questions=" + encodeURIComponent(selection.join(',')),
+          {
+            headers: { Authorization:  `Bearer ${token}`},
+            method: "GET",
+          }
+        );
+
+      messageType = '';
+      message = 'Taxonomy successfully applied.';
+    } else {
+      messageType = 'error';
+      message = 'Please enter a new taxonomy or select an existing taxonomy from the drop-down and try again.';
+    }
+  };
 </script>
+
+{#if message}
+<p class="message" class:error={messageType === 'error'} class:warning={messageType === 'warning'}>
+  {message}
+</p>
+{/if}
 
 <Scatterplot bind:selected={selection} />
 
 <h1>Cluster</h1>
-<input type="text" placeholder="Name for cluster" />
+<Select options={selectTaxonomies} bind:value={selectedTaxonomy} errorMessage='' />
+{#if selectedTaxonomy === -1}
+<input type="text" placeholder="Name for cluster" bind:value={newTaxonomy} />
+{/if}
 
 <h2>Starting point</h2>
 {#if $cache}
@@ -71,7 +146,7 @@
   {/each}
 </ul>
 
-<button>Apply cluster to selection</button>
+<button on:click={applyCluster}>Apply cluster to selection</button>
 
 <h2>Candidates</h2>
 Number of candidates per item:

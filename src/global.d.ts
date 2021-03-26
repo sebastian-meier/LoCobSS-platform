@@ -25,6 +25,11 @@ declare global {
     },
     verifyUser: (e: string) => void;
   };
+  interface Taxonomy {
+    id: number;
+    parent: number;
+    name: string;
+  };
   interface publicQuestion {
     id: number; 
     question_de: string;
