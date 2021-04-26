@@ -30,15 +30,27 @@ declare global {
     parent: number;
     name: string;
   };
+  interface Reply {
+    id: number;
+    name: string;
+    url: string;
+    body: string;
+  };
   interface publicQuestion {
     id: number; 
     question_de: string;
     description_de: string;
     participantSynonym: string; 
     created: string;
+    relation: string;
     tsne_x: number;
     tsne_y: number;
+    liked: boolean;
+    state: string;
     has_reply: boolean;
+    sentiment_summary: string;
+    sonar_all: string;
+    profanityfilter: number;
     taxonomies: {
       id: number;
       name: string;

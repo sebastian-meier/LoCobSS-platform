@@ -1,5 +1,6 @@
 <script>
   import {link, push} from 'svelte-spa-router'
+  import {_} from 'svelte-i18n';
 
   import validate from 'validate.js'
   import { Auth } from '../../../config/firebase'
@@ -14,7 +15,7 @@
       presence: true,
       length: {
         minimum: 4,
-        message: 'must be at least 4 characters'
+        message: $_('name_length')
       }
     },
     email: {
@@ -25,7 +26,7 @@
       presence: true,
       length: {
         minimum: 6,
-        message: 'must be at least 6 characters'
+        message: $_('password_length')
       }
     }
   }
@@ -98,16 +99,16 @@
 </script>
 
 <div id="page">
-  <h1>Create your account</h1>
+  <h1>{$_('create_account_title')}</h1>
   <form ref="form" on:submit|preventDefault={signInUser}>
     <TextInput
       bind:value={name}
       error={nameError}
-      label="Your name"
+      label={$_('survey_ask--label_name')}
       errorMessage={nameMessage} />
     <EmailInput bind:value={email} error={emailError} errorMessage={emailMessage} />
     <PasswordInput bind:value={password} error={passwordError} errorMessage={passwordMessage} />
-    <FormButtons cancelButton={false} submitText="Create account" isLoading={disableAction} />
+    <FormButtons cancelButton={false} submitText={$_('create_account_action')} isLoading={disableAction} />
   </form>  
-  Already have an account? <a href="/user/login" use:link>Log in &raquo;</a>
+  {$_('already_account')} <a href="/user/login" use:link>{$_('already_account_action')} &raquo;</a>
 </div>

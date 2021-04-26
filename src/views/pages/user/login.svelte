@@ -1,6 +1,6 @@
 <script>
   import {link, push} from 'svelte-spa-router'
-
+  import {_} from 'svelte-i18n';
   import validate from 'validate.js'
   import PasswordInput from '../../components/forms/password_input.svelte'
   import EmailInput from '../../components/forms/email_input.svelte'
@@ -16,7 +16,7 @@
       presence: true,
       length: {
         minimum: 6,
-        message: 'must be at least 6 characters'
+        message: $_('password_length')
       }
     }
   }
@@ -56,6 +56,7 @@
   }
 
   const signInUser = () => {
+    console.log("submit");
     disableAction = true
     validateLoginForm()
     if (validateLoginForm()) {
@@ -79,7 +80,7 @@
   <form ref="form" on:submit|preventDefault={signInUser}>
     <EmailInput bind:value={email} error={emailError} errorMessage={emailMessage} />
     <PasswordInput bind:value={password} error={passwordError} errorMessage={passwordMessage} />
-    <FormButtons cancelButton={false} submitText="Login" isLoading={disableAction} />
+    <FormButtons on:submit={signInUser} cancelButton={false} submitText="Login" isLoading={disableAction} />
   </form>
-  <a href="/user/register" use:link>Create an account &raquo;</a>
+  <a href="/user/register" use:link>{$_('create_account')} &raquo;</a>
 </div>

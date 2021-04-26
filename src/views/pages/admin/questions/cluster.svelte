@@ -14,6 +14,7 @@
   import Select from '../../../components/forms/select.svelte';
   import { Auth } from '../../../../config/firebase';
   import { onMount } from 'svelte';
+  import {_} from 'svelte-i18n';
   
   export let params: {id?: string} = {};
 
@@ -28,7 +29,7 @@
       $detailId = parseInt(params.id);      
     }
   }
-  $: selectTaxonomies = [{id: -1, name: 'New Taxonomy'}, ...(($taxonomies) ? $taxonomies.map((t) => {
+  $: selectTaxonomies = [{id: -1, name: $_('admin_cluster--new')}, ...(($taxonomies) ? $taxonomies.map((t) => {
       return { id: t.id, name: t.name };
     }) : [])];
 
@@ -112,10 +113,10 @@
         );
 
       messageType = '';
-      message = 'Taxonomy successfully applied.';
+      message = $_('admin_cluster--applied');
     } else {
       messageType = 'error';
-      message = 'Please enter a new taxonomy or select an existing taxonomy from the drop-down and try again.';
+      message = $_('admin_cluster--missing');
     }
   };
 </script>
@@ -129,45 +130,42 @@
 <Scatterplot bind:selected={selection} />
 
 <h1>Cluster</h1>
-<Select options={selectTaxonomies} bind:value={selectedTaxonomy} errorMessage='' />
-{#if selectedTaxonomy === -1}
-<input type="text" placeholder="Name for cluster" bind:value={newTaxonomy} />
-{/if}
-
-<h2>Starting point</h2>
+<div class="cluster-container">
+<h2>{$_('admin_cluster--start')}</h2>
 {#if $cache}
-<p>{$cache.question_de}</p>
+<p class="starting"><strong>{$cache.question_de}</strong></p>
 {/if}
 
-<h2>Cluster members</h2>
+<h2>{$_('admin_cluster--member')}</h2>
 <ul>
   {#each $clusterQuestions as q}
   <li on:click={() => removeFromCluster(q.id)}>{q.question_de}</li>
   {/each}
 </ul>
+<Select options={selectTaxonomies} bind:value={selectedTaxonomy} errorMessage='' />
+{#if selectedTaxonomy === -1}
+<input type="text" placeholder={$_('admin_cluster--name')} bind:value={newTaxonomy} />
+{/if}
+<button on:click={applyCluster}>{$_('admin_cluster--apply')}</button>
 
-<button on:click={applyCluster}>Apply cluster to selection</button>
-
-<h2>Candidates</h2>
-Number of candidates per item:
+<h2>{$_('admin_cluster--candidates')}</h2>
+{$_('admin_cluster--number')}
 <select bind:value={$limit}>
   <option value="10">10</option>
   <option value="20">20</option>
   <option value="40">40</option>
 </select>
 <ul>
+  {#each $relatedQuestions as q}
   <li>
-    {#each $relatedQuestions as q}
-    <li>
-      <input type=checkbox bind:group={clusterGroup} value={q.id}>
-      {q.question_de}</li>
-    {/each}
-  </li>
+    <input type=checkbox bind:group={clusterGroup} value={q.id}>
+    {q.question_de}</li>
+  {/each}
 </ul>
 
-<button on:click={() => add(clusterGroup)}>Add selection to cluster & ignore rest</button>
+<button on:click={() => add(clusterGroup)}>{$_('admin_cluster--add')}</button>
 
-<h2>Ignored Candidates</h2>
+<h2>{$_('admin_cluster--ignore')}</h2>
 <ul>
   {#each $ignoredQuestions as q}
   <li>
@@ -177,4 +175,5 @@ Number of candidates per item:
   {/each}
 </ul>
 
-<button on:click={() => add(ignoreGroup, false)}>Add selection to cluster</button>
+<button on:click={() => add(ignoreGroup, false)}>{$_('admin_cluster--ignore_add')}</button>
+</div>

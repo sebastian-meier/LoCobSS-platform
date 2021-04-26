@@ -14,6 +14,11 @@
     event.preventDefault()
     dispatch('cancel')
   }
+
+  const submitAction = event => {
+    event.preventDefault()
+    dispatch('submit')
+  }
 </script>
 
 <div class="field form-buttons">
@@ -25,6 +30,6 @@
       {$_('loading')}
     </div>
   {:else}
-    <button type="submit" {id} class="btn">{submitText} </button>
+    <button type="button" on:click={submitAction} {id} class="btn">{submitText} </button>
   {/if}
 </div>

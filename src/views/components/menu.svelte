@@ -3,30 +3,27 @@
   import { loggedIn, hasRoles, roles } from '../../stores/current_user';
   
   export let menu: { url: string, label: string, protected: boolean, role?: string[]}[] = [];
-  let i = 0;
-  $: allowedMenu = menu.filter(async (item, index) => {
-    if (index === 0) {
-      i += 1;
-    }
-    if (!item.protected) {
-      return true;
-    } else if ($loggedIn){
-      if (!('role' in item) || item.role[0] === 'all') {
+
+  $: allowedMenu = menu.filter((item, index) => {
+      if (!item.protected) {
         return true;
-      } else {
-        if ($hasRoles) {
-          item.role.forEach((r) => {
-            $roles.forEach((ar) => {
-              if (r === ar) {
-                return true;
+      } else if ($loggedIn){
+        if (!('role' in item) || item.role[0] === 'all') {
+          return true;
+        } else {
+          if ($hasRoles) {
+            for (let ir = 0; ir < item.role.length; ir += 1){
+              for (let ur = 0; ur < $roles.length; ur += 1){
+                if ($roles[ur] === item.role[ir]) {
+                  return true;
+                }
               }
-            });
-          });
+            }
+          }
         }
       }
-    }
-    return false;
-  });
+      return false;
+    });
 
   $: cLocation = $location;
 

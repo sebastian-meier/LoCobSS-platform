@@ -27,6 +27,7 @@ import {
   relatedToken} from '../../../stores/ask';
 import PasswordInput from '../../components/forms/password_input.svelte';
 import {loggedIn, validated} from '../../../stores/current_user';
+import {_} from 'svelte-i18n';
 
 load();
 
@@ -38,9 +39,9 @@ let messageType = 'info';
 let captchaResponse;
 let processingTexts = [
   '',
-  'Uploading Question',
-  'Checking Question',
-  'Finding connections between your Question and other Questions on the platform'
+  $_('survey_ask--txt_upload'),
+  $_('survey_ask--txt_check'),
+  $_('survey_ask--txt_find')
 ];
 let processingId = 0;
 let processingTimeout = null;
@@ -84,7 +85,7 @@ const processErrors = (code: number, stats: null | {
     case 2:
       // No valid question
       messageType = 'error';
-      message = 'Please provide a valid question.';
+      message = $_('survey_ask--msg_question');
       errors.question.error = true;
       window.grecaptcha.reset();
       disableAction = false;
@@ -92,7 +93,7 @@ const processErrors = (code: number, stats: null | {
     case 4:
       // Email already registered
       messageType = 'error';
-      message = 'This email adress is already in use.';
+      message = $_('survey_ask--msg_inuse');
       setError('mail', '');
       setError('password', '');
       disableAction = false;
@@ -101,21 +102,21 @@ const processErrors = (code: number, stats: null | {
     case 5:
       // Email not validated
       messageType = 'error';
-      message = 'This email is not yet validated. Please validate before submitting another question.';
+      message = $_('survey_ask--validate');
       disableAction = false;
       state = 'ask';
       break;
     case 3:
       // Oh no something went wrong
       messageType = 'error';
-      message = 'We are really sorry, but something went wrong. Please try again in a minute.';
+      message = $_('survey_ask--msg_error');
       disableAction = false;
       state = 'ask';
       break;
     case 1:
       // No valid captcha
       messageType = 'error';
-      message = 'Please fill out the robot test at the end of the form. This is not your fault. Sometimes when the internet is too slow, the robot test becomes invalid before we can check it.';
+      message = $_('survey_ask--msg_robot_again');
       disableAction = false;
       state = 'ask';
       break;
@@ -134,13 +135,13 @@ const submitQuestion = async () => {
   if (!captchaResponse) {
     valid = false;
     messageType = 'error';
-    message = 'Please answer the robot test at the end of the form, before submitting';
+    message = $_('survey_ask--msg_robot');
   }
 
   // 1. is there a question
   if (!$question || $question.length < 10) {
     valid = false;
-    setError('question', 'Please enter a question, at least 10 characters long.');
+    setError('question', $_('survey_ask--msg_question'));
   } else {
     resetError(['question']);
   }
@@ -158,22 +159,22 @@ const submitQuestion = async () => {
         console.log(err);
         valid = false;
         messageType = 'error';
-        message = 'Something went wrong. Please try again.';
+        message = $_('survey_ask--msg_wrong');
       }
     } else if($register === 'registered' && $loggedIn && !$validated) {
       valid = false;
       messageType = 'error';
-      message = 'Please validate your email before asking another question.';
+      message = $_('survey_ask--validate');
     } else {
       if (!$mail || $mail.length < 6 || !emailValidation($mail)) {
         valid = false;
-        setError('mail', 'Please enter a valid email.');
+        setError('mail', $_('survey_ask--msg_mail'));
       } else {
         resetError(['mail']);
       }
       if (!password || password.length < 8 || !hasNumbersAndLetters(password)) {
         valid = false;
-        setError('password', 'Please enter a valid password (at least 8 characters, numbers and letters).');
+        setError('password', $_('survey_ask--msg_password'));
       } else {
         resetError(['password']);
       }
@@ -192,7 +193,7 @@ const submitQuestion = async () => {
           setError('password', '');
           setError('mail', '');
           messageType = 'error';
-          message = 'We could not log you in, with the credentials you provided. Please check them.';
+          message = $_('survey_ask--msg_login');
           state = 'ask';
         }
       }
@@ -228,7 +229,7 @@ const submitQuestion = async () => {
     }
     if (!validPostcode) {
       valid = false;
-      setError('postcode', 'The entered postcode is not valid.');
+      setError('postcode', $_('survey_ask--msg_postcode'));
     } else {
       resetError(['postcode']);
     }
@@ -311,14 +312,14 @@ const submitQuestion = async () => {
 
         reset();
         messageType = '';
-        message = 'You question was added.';
+        message = $_('survey_ask--msg_ok');
         disableAction = false;
         state = 'asked';
       }
     } catch (error) {
       console.log(error);
       messageType = 'error';
-      message = 'Something went wrong submitting your question. Please try again in a moment.';
+      message = $_('survey_ask--msg_error');
       window.grecaptcha.reset();
       disableAction = false;
     }
@@ -330,10 +331,10 @@ const submitQuestion = async () => {
 
 </script>
 
-<h1>Ask a question</h1>
-{#if $loggedIn && !$validated && state === 'ask' && message !== 'Please validate your email before asking another question.'}
+<h1>{$_('survey_ask--headline')}</h1>
+{#if $loggedIn && !$validated && state === 'ask' && message !== $_('survey_ask--validate')}
 <p class="message warning">
-  Please validate your email before asking another question.
+  {$_('survey_ask--validate')}
 </p>
 {/if}
 {#if message}
@@ -345,30 +346,30 @@ const submitQuestion = async () => {
 {/if}
 {#if state === 'ask'}
 <div id="intro">
-  <p>We are interested in your questions. You can ask anything. Please try to be as clear as possible, be polite and constructive. All questions are reviewed before they are published on the platform. Questions that do not align with our code of conduct are removed from the platform.</p>
-  <p><i>Fields marked with <strong>*</strong> are required. All other fields are optional.</i></p>
+  <p>{$_('survey_ask--intro')}</p>
+  <p>{@html $_('required_text')}</p>
 </div>
-<form on:submit|preventDefault={submitQuestion}>
+<form>
   <TextArea
     bind:value={$question}
     error={errors.question.error}
     id="questionArea"
-    label="Your Question*"
+    label={$_('survey_ask--label_question')}
     errorMessage={errors.question.message} />
   <TextArea
     bind:value={$description}
-    label="Additional notes" />
+    label={$_('survey_ask--label_notes')} />
   {#if !$loggedIn}
     <TextInput
     bind:value={$name}
-    label="Your name*" />
-  <h2>Tell us a little bit about yourself:</h2>
-  <p>We want this survey to represent all groups in our society, therefore it helps us to know a few things about you. This information is stored separately from your question and cannot be associated with you as a person:</p>
+    label={$_('survey_ask--label_name')} />
+  <h2>{$_('survey_ask--about_title')}:</h2>
+  <p>{$_('survey_ask--about_copy')}:</p>
   <div class="columns">
     <div>
       <TextInput
         bind:value={$postcode}
-        label="Postcode"
+        label={$_('survey_ask--label_postcode')}
         error={errors.postcode.error}
         errorMessage={errors.postcode.message} />    
     </div>
@@ -376,13 +377,13 @@ const submitQuestion = async () => {
     <div>
       <Select
         bind:value={$gender}
-        label="Your gender"
+        label={$_('survey_ask--label_gender')}
         helpText=""
         errorMessage=""
         options={[
           {id: '_', name: ''},
-          {id: 'f', name: 'female'},
-          {id: 'm', name: 'male'},
+          {id: 'f', name: $_('female')},
+          {id: 'm', name: $_('male')},
           {id: '*', name: '*'}
         ]} />
     </div>
@@ -390,46 +391,46 @@ const submitQuestion = async () => {
     <div>
       <Select
         bind:value={$age}
-        label="Your age"
+        label={$_('survey_ask--label_age')}
         errorMessage=""
         helpText=""
         options={[
           {id: '_', name: ''},
-          {id: '<6',    name: 'younger than 6'}, 
-          {id: '6_12',  name: '6 to 12'}, 
-          {id: '13_18', name: '13 to 18'}, 
-          {id: '19_29', name: '19 to 29'}, 
-          {id: '30_39', name: '30 to 39'}, 
-          {id: '40_49', name: '40 to 49'}, 
-          {id: '50_65', name: '50 to 65'}, 
-          {id: '66_79', name: '66 to 79'}, 
-          {id: '>=80',  name: '80 and older'}
+          {id: '<6',    name: $_('younger_than') + ' 6'}, 
+          {id: '6_12',  name: '6 ' + $_('to') + ' 12'}, 
+          {id: '13_18', name: '13 ' + $_('to') + ' 18'}, 
+          {id: '19_29', name: '19 ' + $_('to') + ' 29'}, 
+          {id: '30_39', name: '30 ' + $_('to') + ' 39'}, 
+          {id: '40_49', name: '40 ' + $_('to') + ' 49'}, 
+          {id: '50_65', name: '50 ' + $_('to') + ' 65'}, 
+          {id: '66_79', name: '66 ' + $_('to') + ' 79'}, 
+          {id: '>=80',  name: '80 ' + $_('and_older')}
         ]} />
     </div>
   </div>
-  <h2>Want to keep in touch?</h2>
-  <p>When you register you can get updates on your questions. We will not share your information with third-parties and only inform you about survey-related topics. You can delete your account at any time.</p>
+  <h2>{$_('survey_ask--intouch_title')}</h2>
+  <p>{$_('survey_ask--intouch_copy')}</p>
   <RadioGroup
     bind:value={$register}
     id="register"
     group={[
-      { value: 'no', label: 'No, thanks.'},
-      { value: 'yes', label: 'Yes, please sign me up.'},
-      { value: 'registered', label: 'I am already registered'}
+      { value: 'no', label: $_('survey_ask--label_no')},
+      { value: 'yes', label: $_('survey_ask--label_yes')},
+      { value: 'registered', label: $_('survey_ask--label_already')}
     ]} />
   {#if $register === 'yes' || $register === 'registered'}
   {#if $register === 'yes'}
-  <p>For registration purposes, please provide us with your email and a password for your account. <i>The password should at least be 8 characters long and contain at least one number and one letter.</i></p>
+  <p>{@html $_('survey_ask--register_copy')}</p>
   {/if}
   {#if $register === 'registered'}
-  <p>Please provide your email and password, so we can log you in and add your question.</p>
+  <p>{@html $_('survey_ask--login_copy')}</p>
   {/if}
   <div class="columns">
     <div>
       <TextInput
       bind:value={$mail}
       error={errors.mail.error}
-      label="Your email"
+      label={$_('survey_ask--label_mail')}
       errorMessage={errors.mail.message} />
     </div>
     <div class="gap"></div>
@@ -437,24 +438,27 @@ const submitQuestion = async () => {
       <PasswordInput
       bind:value={password}
       error={errors.password.error}
-      label="Your password"
+      label={$_('survey_ask--label_mail')}
       errorMessage={errors.password.message} />
     </div>
   </div>
   {/if}
   {/if}
   <Captcha bind:response={captchaResponse} />
-  <Button id="questionSubmit" cancelButton={false} submitText="Submit question" isLoading={(disableAction||!$postcodes) ? true : false} />
+  <Button on:submit={submitQuestion} id="questionSubmit" cancelButton={false} submitText={$_('survey_ask--label_submit')} isLoading={(disableAction||!$postcodes) ? true : false} />
 </form>
 {:else if state === 'asked'}
-<p>Thanks for submitting your question. Our robot helpers found a couple of questions, they think, are related to yours. You would really help us, if you could rate how strongly you think those questions are related to your Question.</p>
-<p><strong>{$questionAsked}</strong></p>
+<p>{$_('survey_ask--thanks')}</p>
+<div class="question-detail"><h1>{$questionAsked}</h1></div>
+
+<div class="related-rating-container">
 <ul>
 {#each $related as q}
 <RelatedRater question={q} token={$relatedToken} source={$questionAskedId} />
 {/each}
 </ul>
-<button on:click={() => { message = ''; state = 'ask'; }}>Ask another question</button>
+</div>
+<button on:click={() => { message = ''; state = 'ask'; }}>{$_('survey_ask--again')}</button>
 {:else if state === 'loading' || state === 'processing'}
 <p>{processingTexts[processingId]}</p>
 <Loader />

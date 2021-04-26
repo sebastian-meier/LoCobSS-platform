@@ -1,4 +1,4 @@
-import { currentUser, roles } from '../../stores/current_user';
+import { loggedIn, currentUser, roles } from '../../stores/current_user';
 import { Auth } from '../../config/firebase';
 
 Auth.onAuthStateChanged(() => {
@@ -23,3 +23,17 @@ Auth.onAuthStateChanged(() => {
     roles.set([]);
   }
 })
+
+export const addAuthorization = async (header?: {} | { headers: {} }): 
+  Promise<{} | { headers: { 'Authorization': string} }> => {
+
+  const lHeader = header || {};
+  if (Auth.currentUser) {
+    const token = await Auth.currentUser.getIdToken();
+    if (!('headers' in lHeader)) {
+      lHeader['headers'] = {};
+    }
+    lHeader['headers']['Authorization'] = `Bearer ${token}`;
+  }
+  return lHeader;
+}

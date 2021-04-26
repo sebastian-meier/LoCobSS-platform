@@ -1,10 +1,13 @@
-import { writable, Writable, Readable, derived } from 'svelte/store'
+import { writable, Writable, Readable, derived } from 'svelte/store';
+import {loggedIn} from './current_user';
+import {addAuthorization} from '../middleware/users/auth';
 
 export const search: Writable<string> = writable('');
 export const taxonomies: Writable<number[]> = writable([]);
 export const dates: Writable<Date[]> = writable([]);
 export const hasReply: Writable<boolean> = writable(null);
 export const page: Writable<number> = writable(0);
+export const isLoading: Writable<boolean> = writable(false);
 
 let cacheTimeoutId: number | null = null;
 export const cache: Readable<publicQuestionResult> = derived(
@@ -13,20 +16,22 @@ export const cache: Readable<publicQuestionResult> = derived(
     taxonomies,
     dates,
     hasReply,
-    page
+    page,
+    loggedIn
   ],
   ([
     $search,
     $taxonomies,
     $dates,
     $hasReply,
-    $page
+    $page,
   ], 
   set) => {
     const first = (cacheTimeoutId === null) ? true : false;
     if (cacheTimeoutId) {
       clearTimeout(cacheTimeoutId);
     }
+    isLoading.set(true);
 
     cacheTimeoutId = setTimeout(async () => {
       const queries = [];
@@ -51,10 +56,16 @@ export const cache: Readable<publicQuestionResult> = derived(
 
       const response = await fetch(
         // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-        `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`
+        `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
+        await addAuthorization()
       ).then((response) => response.json());
 
+      if (response.page != $page) {
+        page.set(response.page);
+      }
+
       set(response);
-    }, (first) ? 0 : 1000);
+      isLoading.set(false);
+    }, (first) ? 0 : 500);
   }
 )

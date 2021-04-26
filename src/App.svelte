@@ -20,4 +20,5 @@
   @import 'styles/datatables';
   @import 'styles/survey';
   @import 'styles/pagination';
+  @import 'styles/admin';
 </style>
