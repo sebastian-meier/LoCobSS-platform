@@ -1,9 +1,9 @@
 <script>
   import { _ } from 'svelte-i18n';
 
-  export let cancelText = 'Cancel'
+  export let cancelText = $_('cancel');
   export let cancelButton = true
-  export let submitText = 'Submit'
+  export let submitText = $_('submit');
   export let id = ''
   export let isLoading = false
   import { createEventDispatcher } from 'svelte'

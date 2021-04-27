@@ -2,8 +2,10 @@
   import Select from "./select.svelte";
   import { createEventDispatcher } from 'svelte'
   import Buttons from "./buttons.svelte";
+  import {_} from 'svelte-i18n';
 
   export let options:{ id: number, name: string }[] = [];
+  export let errorMessage: string = $_('please_choose');
   let value = null;
 
   const dispatch = createEventDispatcher();
@@ -17,5 +19,9 @@
   };
 </script>
 
-<Select label="" options={[{id: -1, name: 'Please choose'}, ...options]} bind:value={value} />
-<Buttons cancelButton={false} submitText='Select' on:submit={listSelect} />
+<Select
+  label=""
+  errorMessage={errorMessage}
+  options={[{id: -1, name: $_('please_choose')}, ...options]}
+  bind:value={value} />
+<Buttons cancelButton={false} submitText={$_('select')} on:submit={listSelect} />

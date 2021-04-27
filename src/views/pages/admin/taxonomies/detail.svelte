@@ -6,7 +6,8 @@
   import Buttons from '../../../components/forms/buttons.svelte';
   import { onDestroy, onMount } from 'svelte';
   import { Auth } from '../../../../config/firebase';
-import Select from '../../../components/forms/select.svelte';
+  import Select from '../../../components/forms/select.svelte';
+  import {_} from 'svelte-i18n';
 
   onMount(() => {
     load();
@@ -59,14 +60,17 @@ import Select from '../../../components/forms/select.svelte';
 
 {#if $taxonomy}
 <div class="question-detail">
-  <span on:click={() => pop()}>BACK BUTTON</span>
+  <span class="back-button" on:click={() => pop()}>&laquo; {$_('back')}</span>
   <TextInput label="Name" bind:value={fName} />
-  <Select 
-    label="Parent Taxonomy"
-    options={[{ id: null, name: "Choose"}, ...$taxonomies.filter((t) => t.id !== $taxonomyId)]} 
-    bind:value={fParent} />
+  <div style="margin: 15px 0">
+    <Select 
+      errorMessage=""
+      label={$_('parent_taxonomy')}
+      options={[{ id: null, name: $_('please_choose')}, ...$taxonomies.filter((t) => t.id !== $taxonomyId)]} 
+      bind:value={fParent} />
+  </div>
   <Buttons 
-    submitText="save"
+    submitText={$_('save')}
     on:submit={() => update()}
     on:cancel={() => pop()} />
 </div>

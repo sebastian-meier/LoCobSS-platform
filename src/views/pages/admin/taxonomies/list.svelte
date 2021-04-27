@@ -4,6 +4,7 @@
   import {Datatable, rows} from 'svelte-simple-datatables';
   import {taxonomies, load} from '../../../../stores/taxonomies';
   import {link} from 'svelte-spa-router';
+  import {_} from 'svelte-i18n';
 
   load();
 
@@ -13,6 +14,14 @@
     rowPerPage: 10,
     scrollY: false,
     columnFilter: true,
+    labels: {
+        search: $_('search'),    // search input placeholer
+        filter: $_('filter'),       // filter inputs placeholder
+        noRows: $_('no_entries'),
+        info: $_('datatable_meta'),
+        previous: $_('previous'),
+        next: $_('next'),       
+    }
   };
 
   let tRows: { id: number, name: string}[] = [];
@@ -29,7 +38,7 @@
     <Datatable settings={tableSettings} data={data}>
       <thead>
         <th class="sortable asc desc" data-key="id">ID</th>
-        <th class="sortable asc desc" data-key="question">Taxonomy</th>
+        <th class="sortable asc desc" data-key="question">{$_('taxonomies')}</th>
         <th></th>
       </thead>
       <tbody>
@@ -38,7 +47,10 @@
               <td>{row.id}</td>
               <td>{row.name}</td>
               <td>
-                <a href="/admin/taxonomies/details/{row.id}" use:link>Edit</a>&nbsp;|&nbsp;<a href="/admin/taxonomies/delete/{row.id}">Delete</a>
+                <ul class="action-list">
+                  <li><a href="/admin/taxonomies/details/{row.id}" use:link><span class="icon edit">Edit</span></a></li>
+                  <li><a href="/admin/taxonomies/delete/{row.id}" use:link><span class="icon delete">Delete</span></a></li>
+                </ul>
               </td>
           </tr>
       {/each}

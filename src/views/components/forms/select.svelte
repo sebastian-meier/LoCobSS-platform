@@ -5,7 +5,7 @@
   export let label = 'Select';
   export let value: number | string = '';
   export let error = false;
-  export let errorMessage = $_('please_select');
+  export let errorMessage: string = $_('please_select');
   export let helpText = '';
   export let options = [];
 </script>

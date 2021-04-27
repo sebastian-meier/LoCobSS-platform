@@ -10,6 +10,8 @@
   import {replies, load as loadReplies} from '../../../../stores/replies';
   import { Auth } from '../../../../config/firebase';
   import Select from '../../../components/forms/select.svelte';
+  import {_} from 'svelte-i18n';
+  import moment from 'moment';
 
   onMount(() => {
     loadTaxonomies();
@@ -124,57 +126,89 @@
         $reload = true;
       });
   };
+
+  let sonar_classes: { class_name: string, confidence: number }[];
+
+  $: if ($question) {
+    sonar_classes = JSON.parse($question.sonar_all).sort((a, b) => {
+      return b.confidence - a.confidence;
+    });
+  }
+
 </script>
 
 {#if $question}
 <div class="question-detail">
-  <span on:click={() => pop()}>BACK BUTTON</span>
-  <div class="question-header">
+  <span class="back-button" on:click={() => pop()}>&laquo; {$_('back')}</span>
+  <span class="date">
+    {$_('question_added')}:&nbsp;{moment($question.created).format('DD.MM.YYYY HH:mm')}
+    {$_('by')}
+    <strong>{($question.participantSynonym === undefined) ? $_('undefined') : $question.participantSynonym}</strong></span>
+  <div>
+    <Select label={$_('state')} bind:value={fState} options={[
+      { id: null, name: $_('please_choose')},
+      { id: "published", name: $_('published')},
+      { id: "flagged", name: $_('flagged')},
+      { id: "review", name: $_('review')},
+    ]} errorMessage="" />
+  </div>
+  <div style="margin-top:20px;">
+    <Textarea label={$_('question')} bind:value={fQuestion} id="questionField" />
+    <Textarea label={$_('survey_ask--label_notes')} bind:value={fDescription} id="descriptionField" />
+    <Buttons 
+      submitText={$_('save')}
+      on:submit={() => update()}
+      on:cancel={() => pop()} />
+  </div>
+  <div class="columns" style="margin-top:30px; margin-bottom:30px;">
     <div>
-      {$question.sentiment_summary}
+      <h3>{$_('replies')}</h3>
+      <ul>
+        {#each $question.replies as reply}
+        <li on:click={() => revokeReply(reply.id)}>{reply.name}</li>
+        {/each}
+      </ul>
+      <ListSelect
+        errorMessage=""
+        options={$replies.filter((r) => !$question.replies.map((r) => r.id).includes(r.id))}
+        on:select={(e) => addReply(e.detail)} />
     </div>
+    <div class="gap"></div>
     <div>
-      {$question.sonar_all}
-    </div>
-    <div>
-      {$question.participantSynonym}
-    </div>
-    <div>
-      {$question.created}
-    </div>
-    <div>
-      <Select label="State" bind:value={fState} options={[
-        { id: null, name: "Choose"},
-        { id: "published", name: "Published"},
-        { id: "flagged", name: "Flagged"},
-        { id: "review", name: "Review"},
-      ]} />
+      <h3>{$_('taxonomies')}</h3>
+      <ul>
+        {#each $question.taxonomies as taxonomy}
+        <li on:click={() => revokeTaxonomy(taxonomy.id)}>{taxonomy.name}</li>
+        {/each}
+      </ul>
+      <ListSelect
+        errorMessage=""
+        options={$taxonomies.filter((t) => !$question.taxonomies.map((t) => t.id).includes(t.id))}
+        on:select={(e) => addTaxonomy(e.detail)} />
     </div>
   </div>
-  <Textarea label="Question" bind:value={fQuestion} />
-  <Textarea label="Description" bind:value={fDescription} />
-  Replies
-  <ul>
-    {#each $question.replies as reply}
-    <li on:click={() => revokeReply(reply.id)}>{reply.name}</li>
-    {/each}
-  </ul>
-  <ListSelect
-    options={$replies.filter((r) => !$question.replies.map((r) => r.id).includes(r.id))}
-    on:select={(e) => addReply(e.detail)} />
 
-  Taxonomies
-  <ul>
-    {#each $question.taxonomies as taxonomy}
-    <li on:click={() => revokeTaxonomy(taxonomy.id)}>{taxonomy.name}</li>
-    {/each}
-  </ul>
-  <ListSelect
-    options={$taxonomies.filter((t) => !$question.taxonomies.map((t) => t.id).includes(t.id))}
-    on:select={(e) => addTaxonomy(e.detail)} />
-  <Buttons 
-    submitText="save"
-    on:submit={() => update()}
-    on:cancel={() => pop()} />
+  <div class="question-header">
+    <h3>{$_('analysis_results')}</h3>
+    <div class="columns">
+      <div>
+        <strong>{$_('sentiment')}</strong><br />
+        {$_('negative')}: {JSON.parse($question.sentiment_summary).neg.mean} ⌀<br />
+        {$_('neutral')}: {JSON.parse($question.sentiment_summary).neu.mean} ⌀<br />
+        {$_('positive')}: {JSON.parse($question.sentiment_summary).pos.mean} ⌀<br />
+      </div>
+      <div>
+        <strong>{$_('sonar_classes')}:</strong>
+        {#each sonar_classes as sonar_class}
+          <br />{$_('hate_' + sonar_class.class_name)}: {sonar_class.confidence.toFixed(3)}
+        {/each}
+      </div>
+      <div>
+        <strong>{$_('profanity')}:</strong><br />
+        {($question.profanityfilter !== 0) ? $_('profan_yes') : $_('profan_no')}
+      </div>
+    </div>
+  </div>
+
 </div>
 {/if}
