@@ -3,6 +3,7 @@
 /public/.htaccess
 /public/.htpasswd
 
+.firebase
 firebase.json
 .firebaserc
 
