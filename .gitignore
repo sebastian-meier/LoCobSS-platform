@@ -4,6 +4,7 @@
 /public/.htpasswd
 
 firebase.json
+.firebaserc
 
 # Logs
 logs
