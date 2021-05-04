@@ -18,8 +18,7 @@ export const cache: Readable<publicQuestion> = derived(
         const response = await Auth.currentUser.getIdToken()
           .then((token) => {
             return fetch(
-              // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-              `http://localhost:5001/bmbf-research-agenda/europe-west3/api/question/${$detailId}`,
+              `${__global.env.API_URL}question/${$detailId}`,
               {
                 headers: {'Authorization': `Bearer ${token}`}
               }
@@ -51,8 +50,7 @@ export const questions: Readable<publicQuestion[]> = derived(
         const response = await Auth.currentUser.getIdToken()
           .then((token) => {
             return fetch(
-              // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-            `http://localhost:5001/bmbf-research-agenda/europe-west3/api/related/questions/cluster/?ids=${$clusterIds.join(',')}&limit=${$limit}`,
+            `${__global.env.API_URL}related/questions/cluster/?ids=${$clusterIds.join(',')}&limit=${$limit}`,
               {
                 headers: {'Authorization': `Bearer ${token}`}
               }

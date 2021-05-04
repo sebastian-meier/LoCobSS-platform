@@ -55,8 +55,7 @@ export const cache: Readable<publicQuestionResult> = derived(
       const query = (queries.length > 0) ? '?' + queries.join('&') : '';
 
       const response = await fetch(
-        // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-        `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
+        `${__global.env.API_URL}public/questions${($page > 0) ? '/' + $page : ''}${query}`,
         await addAuthorization()
       ).then((response) => response.json());
 

@@ -8,7 +8,7 @@ export const reload: Writable<boolean> = writable(false);
 export const reloadCount: Writable<number> = writable(0);
 
 export const load = (): void => {
-  fetch("http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/taxonomies")
+  fetch(__global.env.API_URL + "public/taxonomies")
     .then((response) => response.json())
     .then((response) => {
       taxonomies.set(response);
@@ -39,7 +39,7 @@ export const taxonomy: Readable<Taxonomy> = derived(
       Auth.currentUser.getIdToken()
         .then((token) => {
           return fetch(
-            `http://localhost:5001/bmbf-research-agenda/europe-west3/api/taxonomy/${$taxonomyId}`,
+            `${__global.env.API_URL}taxonomy/${$taxonomyId}`,
             {
               headers: {'Authorization': `Bearer ${token}`}
             }

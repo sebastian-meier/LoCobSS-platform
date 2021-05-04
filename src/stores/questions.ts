@@ -29,9 +29,7 @@ export const load = async(): Promise<boolean> => {
     return await Auth.currentUser.getIdToken()
       .then((token) => {
         return fetch(
-          //'https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/questions',
-          'http://localhost:5001/bmbf-research-agenda/europe-west3/api/questions',
-          // 'http://localhost:5000/assets/data/questions.json',
+          __global.env.API_URL + 'questions',
           {
             headers: {'Authorization': `Bearer ${token}`}
           }
@@ -57,7 +55,7 @@ export const question: Readable<publicQuestion> = derived(
       Auth.currentUser.getIdToken()
         .then((token) => {
           return fetch(
-            `http://localhost:5001/bmbf-research-agenda/europe-west3/api/question/${$questionId}`,
+            `${__global.env.API_URL}question/${$questionId}`,
             {
               headers: {'Authorization': `Bearer ${token}`}
             }

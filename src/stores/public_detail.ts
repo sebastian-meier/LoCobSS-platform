@@ -16,8 +16,7 @@ export const cache: Readable<publicQuestion> = derived(
     (async() => {
       if ($detailId) {
         const response = await fetch(
-          // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-          `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/question/${$detailId}`,
+          `${__global.env.API_URL}public/question/${$detailId}`,
           await addAuthorization()
         ).then((response) => response.json());
 
@@ -39,8 +38,7 @@ export const relatedCache: Readable<publicQuestion[]> = derived(
     (async() => {
       if ($detailId) {
         const response = await fetch(
-          // `https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/public/questions${($page > 0) ? '/' + $page : ''}${query}`,
-          `http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/related/questions/${$detailId}`,
+          `${__global.env.API_URL}public/related/questions/${$detailId}`,
           await addAuthorization()
         ).then((response) => response.json());
 

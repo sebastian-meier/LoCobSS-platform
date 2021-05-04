@@ -11,6 +11,7 @@ declare global {
       FIREBASE_CONFIG_MESSAGING_SENDER_ID: string;
       FIREBASE_CONFIG_APP_ID: string;
       FIREBASE_CONFIG_MEASUREMENT_ID: string;
+      API_URL: string;
       SITE_URL: string;
       RECAPTCHA_v2: string;
       RECAPTCHA_v3: string;

@@ -24,7 +24,7 @@ reload.subscribe((val) => {
 });
 
 export const load = (): void => {
-  fetch("http://localhost:5001/bmbf-research-agenda/europe-west3/api/public/replies")
+  fetch(__global.env.API_URL + "public/replies")
     .then((response) => response.json())
     .then((response) => {
       replies.set(response);
@@ -39,7 +39,7 @@ export const reply: Readable<Reply> = derived(
       Auth.currentUser.getIdToken()
         .then((token) => {
           return fetch(
-            `http://localhost:5001/bmbf-research-agenda/europe-west3/api/replies/${$replyId}`,
+            `${__global.env.API_URL}replies/${$replyId}`,
             {
               headers: {'Authorization': `Bearer ${token}`}
             }

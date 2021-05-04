@@ -15,9 +15,7 @@ export const load = async(): Promise<boolean> => {
     return await Auth.currentUser.getIdToken()
       .then((token) => {
         return fetch(
-          //'https://europe-west3-bmbf-research-agenda.cloudfunctions.net/api/questions',
-          // 'http://localhost:5001/bmbf-research-agenda/europe-west3/api/questions',
-          'http://localhost:5001/bmbf-research-agenda/europe-west3/api/user/questions',
+          __global.env.API_URL + 'user/questions',
           {
             headers: {'Authorization': `Bearer ${token}`}
           }

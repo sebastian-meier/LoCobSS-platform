@@ -44,7 +44,7 @@ postcodes.subscribe((p) => {
 
 export const load = ():void => {
   if (postcodesLength === 0) {
-    fetch('http://localhost:5000/assets/data/platform.csv')
+    fetch(__global.env.SITE_URL + '/assets/data/platform.csv')
       .then((response) => response.text())
       .then((text) => {
         postcodes.set(text.split('\n').map((row) => {
